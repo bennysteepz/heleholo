@@ -1,89 +1,96 @@
 export type UserRole = 'tourist' | 'guide' | 'admin';
 
-export type BookingStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'active'
-  | 'completed'
-  | 'cancelled';
-
-export type TourCategory =
-  | 'scenic'
-  | 'food'
-  | 'surf'
-  | 'history'
-  | 'adventure'
-  | 'hidden_gems';
-
 export interface Profile {
   id: string;
-  role: UserRole;
   full_name: string;
-  avatar_url: string | null;
-  age_range: string | null;
-  interests: string[] | null;
-  languages: string[] | null;
-  bio: string | null;
-  origin_story: string | null;
-  intro_video_url: string | null;
-  stripe_account_id: string | null;
-  is_approved: boolean | null;
+  role: UserRole;
+  bio?: string;
+  avatar_url?: string;
+  languages: string[];
+  rating?: number;
+  review_count: number;
+  response_time?: string;
+  years_on_oahu?: number;
+  verified: boolean;
+  driver_verified: boolean;
+  vehicle_make?: string;
+  vehicle_model?: string;
+  vehicle_color?: string;
+  vehicle_year?: number;
+  neighborhoods: string[];
+  categories: string[];
+  home_city?: string;
+  home_country?: string;
+  interests: string[];
   created_at: string;
 }
 
-export interface Vehicle {
-  id: string;
-  guide_id: string;
-  make: string;
-  model: string;
-  year: number;
-  color: string;
-  plate: string;
-  photo_url: string | null;
-}
-
-export interface Tour {
+/** A bookable experience — consists of one or more ordered legs. */
+export interface Adventure {
   id: string;
   guide_id: string;
   title: string;
-  description: string;
-  category: TourCategory;
+  description?: string;
+  category: string;
   duration_hours: number;
-  price_per_hour: number;
+  price_per_person: number;
   max_guests: number;
-  photos: string[];
+  neighborhood?: string;
+  pickup_area?: string;
+  included: string[];
+  photo_url?: string;
+  rating?: number;
+  review_count: number;
   is_active: boolean;
   created_at: string;
+  // joined fields (optional)
+  guide?: Profile;
+  legs?: AdventureLeg[];
 }
 
-export interface Booking {
+/**
+ * A single stop or phase within an adventure.
+ * Checked off by the guide as the day progresses.
+ */
+export interface AdventureLeg {
   id: string;
-  tour_id: string;
-  tourist_id: string;
-  guide_id: string;
-  status: BookingStatus;
-  start_datetime: string;
-  duration_hours: number;
-  guest_count: number;
-  total_price: number;
-  platform_fee: number;
-  guide_payout: number;
-  pickup_location: string;
-  stripe_payment_intent_id: string | null;
-  cancelled_by: 'tourist' | 'guide' | null;
-  cancelled_at: string | null;
+  adventure_id: string;
+  title: string;
+  description?: string;
+  duration_minutes?: number;
+  order_index: number;
+  location_name?: string;
+  is_optional: boolean;
   created_at: string;
 }
 
 export interface Review {
   id: string;
-  booking_id: string;
+  adventure_id: string;
   tourist_id: string;
   guide_id: string;
   rating: number;
-  body: string;
-  tip_amount: number;
+  body?: string;
   created_at: string;
+  // joined
+  tourist?: Profile;
+}
+
+export interface Booking {
+  id: string;
+  adventure_id: string;
+  tourist_id: string;
+  guide_id: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  booked_date: string;
+  guests: number;
+  total_price: number;
+  pickup_location?: string;
+  notes?: string;
+  created_at: string;
+  // joined
+  adventure?: Adventure;
+  tourist?: Profile;
 }
 
 export interface Message {
@@ -94,5 +101,15 @@ export interface Message {
   created_at: string;
 }
 
-// Placeholder — replace with generated types from `supabase gen types`
-export type Database = any;
+export type Database = {
+  public: {
+    Tables: {
+      profiles:       { Row: Profile };
+      adventures:     { Row: Adventure };
+      adventure_legs: { Row: AdventureLeg };
+      reviews:        { Row: Review };
+      bookings:       { Row: Booking };
+      messages:       { Row: Message };
+    };
+  };
+};

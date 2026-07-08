@@ -1,23 +1,75 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useState, useEffect, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../store/authStore';
+import { supabase } from '../../lib/supabase';
+import { Adventure } from '../../types/database';
+import { AdventureCard } from '../../components/AdventureCard';
 import { EmptyState } from '../../components/ui/EmptyState';
+import { ErrorCard } from '../../components/ui/ErrorCard';
 import { SectionHeader } from '../../components/ui/SectionHeader';
+import { GuideCardSkeleton } from '../../components/ui/Skeleton';
 
-const EXPERIENCES = [
-  { id: 'food',    icon: 'restaurant-outline' as const,  label: 'Local food',     sub: 'Shrimp trucks, poke & more' },
-  { id: 'sunrise', icon: 'sunny-outline' as const,        label: 'Sunrise hikes',  sub: 'Diamond Head & beyond' },
-  { id: 'surf',    icon: 'water-outline' as const,        label: 'Surf culture',   sub: 'North Shore immersion' },
-  { id: 'scenic',  icon: 'car-outline' as const,          label: 'Island drive',   sub: 'The full circle tour' },
-  { id: 'hidden',  icon: 'cafe-outline' as const,         label: 'Hidden spots',   sub: 'Where locals actually go' },
-  { id: 'first',   icon: 'flower-outline' as const,       label: 'First day',      sub: 'Best way to start your trip' },
+const CATEGORIES = [
+  { id: 'all',       icon: 'apps-outline' as const,        label: 'All' },
+  { id: 'food',      icon: 'restaurant-outline' as const,  label: 'Local Food' },
+  { id: 'sunrise',   icon: 'sunny-outline' as const,       label: 'Sunrise' },
+  { id: 'surf',      icon: 'water-outline' as const,       label: 'Surf' },
+  { id: 'scenic',    icon: 'car-outline' as const,         label: 'Scenic Drive' },
+  { id: 'hidden',    icon: 'cafe-outline' as const,        label: 'Hidden Spots' },
+  { id: 'photo',     icon: 'camera-outline' as const,      label: 'Photography' },
+  { id: 'family',    icon: 'people-outline' as const,      label: 'Family' },
+  { id: 'history',   icon: 'library-outline' as const,     label: 'History' },
 ];
 
-const NEIGHBORHOODS = ['Waikīkī', 'North Shore', 'Kaimukī', 'Kāneʻohe', 'Hāleʻiwa', 'Mānoa'];
+const CATEGORY_DB_MAP: Record<string, string[]> = {
+  food:    ['Local Food'],
+  sunrise: ['Sunrise Hike'],
+  surf:    ['Surf Culture'],
+  scenic:  ['Scenic Drive'],
+  hidden:  ['Hidden Spots'],
+  photo:   ['Photography'],
+  family:  ['Family Friendly'],
+  history: ['History & Culture'],
+};
 
 export default function BrowseScreen() {
   const { session } = useAuthStore();
   const firstName = session?.user.user_metadata?.full_name?.split(' ')[0] ?? 'there';
+
+  const [adventures, setAdventures] = useState<Adventure[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState('all');
+
+  const fetchAdventures = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      let query = supabase
+        .from('adventures')
+        .select('*, guide:guide_id(*)')
+        .eq('is_active', true)
+        .order('rating', { ascending: false });
+
+      if (activeCategory !== 'all') {
+        const dbCategories = CATEGORY_DB_MAP[activeCategory];
+        if (dbCategories?.length) {
+          query = query.in('category', dbCategories);
+        }
+      }
+
+      const { data, error: err } = await query;
+      if (err) throw err;
+      setAdventures((data as Adventure[]) ?? []);
+    } catch (e: any) {
+      setError('Could not load adventures. Check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
+  }, [activeCategory]);
+
+  useEffect(() => { fetchAdventures(); }, [fetchAdventures]);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F8F4EC' }} showsVerticalScrollIndicator={false}>
@@ -58,85 +110,63 @@ export default function BrowseScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Experiences grid */}
-      <View style={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 8 }}>
-        <SectionHeader title="EXPERIENCES" />
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-          {EXPERIENCES.map((exp) => (
-            <TouchableOpacity
-              key={exp.id}
-              activeOpacity={0.8}
-              style={{
-                width: '47.5%',
-                backgroundColor: '#FFFFFF',
-                borderRadius: 18,
-                padding: 18,
-                borderWidth: 1,
-                borderColor: '#E5E5EA',
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.06,
-                shadowRadius: 8,
-              }}
-            >
-              <View
+      {/* Category filter chips */}
+      <View style={{ paddingTop: 16, paddingBottom: 8 }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}>
+          {CATEGORIES.map((cat) => {
+            const active = cat.id === activeCategory;
+            return (
+              <TouchableOpacity
+                key={cat.id}
+                onPress={() => setActiveCategory(cat.id)}
+                activeOpacity={0.7}
                 style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: 12,
-                  backgroundColor: '#EBF5FB',
+                  flexDirection: 'row',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 12,
+                  paddingHorizontal: 14,
+                  paddingVertical: 9,
+                  borderRadius: 20,
+                  backgroundColor: active ? '#2288C9' : '#FFFFFF',
+                  borderWidth: 1,
+                  borderColor: active ? '#2288C9' : '#E5E5EA',
                 }}
               >
-                <Ionicons name={exp.icon} size={20} color="#2288C9" />
-              </View>
-              <Text style={{ fontSize: 15, fontWeight: '700', color: '#1C1C1E', marginBottom: 4 }}>
-                {exp.label}
-              </Text>
-              <Text style={{ fontSize: 12, color: '#8E8E93', lineHeight: 16 }}>{exp.sub}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
-      {/* Neighborhoods */}
-      <View style={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 8 }}>
-        <SectionHeader title="EXPLORE BY NEIGHBORHOOD" />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {NEIGHBORHOODS.map((n) => (
-            <TouchableOpacity
-              key={n}
-              activeOpacity={0.7}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                backgroundColor: '#FFFFFF',
-                borderRadius: 20,
-                paddingHorizontal: 16,
-                paddingVertical: 10,
-                marginRight: 8,
-                borderWidth: 1,
-                borderColor: '#E5E5EA',
-              }}
-            >
-              <Ionicons name="location-outline" size={13} color="#8E8E93" style={{ marginRight: 5 }} />
-              <Text style={{ fontSize: 14, color: '#1C1C1E', fontWeight: '500' }}>{n}</Text>
-            </TouchableOpacity>
-          ))}
+                <Ionicons name={cat.icon} size={13} color={active ? '#FFFFFF' : '#8E8E93'} style={{ marginRight: 5 }} />
+                <Text style={{ fontSize: 13, fontWeight: '600', color: active ? '#FFFFFF' : '#8E8E93' }}>
+                  {cat.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       </View>
 
-      {/* Available guides */}
-      <View style={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 48 }}>
-        <SectionHeader title="AVAILABLE TODAY" trailing="See all" />
-        <EmptyState
-          icon="compass-outline"
-          title="Guides coming soon"
-          body="We're building our community of local guides. Check back soon — or be the first to explore."
-          cta="Become a guide"
+      {/* Adventures list */}
+      <View style={{ paddingHorizontal: 20, paddingTop: 16, paddingBottom: 48 }}>
+        <SectionHeader
+          title={activeCategory === 'all' ? 'ALL EXPERIENCES' : CATEGORIES.find(c => c.id === activeCategory)?.label.toUpperCase() ?? 'EXPERIENCES'}
+          trailing={adventures.length > 0 ? `${adventures.length} available` : undefined}
         />
+
+        {error ? (
+          <ErrorCard message={error} onRetry={fetchAdventures} />
+        ) : loading ? (
+          <>
+            <GuideCardSkeleton />
+            <GuideCardSkeleton />
+            <GuideCardSkeleton />
+          </>
+        ) : adventures.length === 0 ? (
+          <EmptyState
+            icon="compass-outline"
+            title="No experiences found"
+            body="Try a different category or check back soon as guides join the platform."
+          />
+        ) : (
+          adventures.map((adv) => (
+            <AdventureCard key={adv.id} adventure={adv} />
+          ))
+        )}
       </View>
     </ScrollView>
   );
