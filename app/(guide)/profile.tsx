@@ -146,7 +146,7 @@ export default function GuideProfileScreen() {
       <View style={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 48 }}>
         <TouchableOpacity
           style={{ backgroundColor: '#FFFFFF', borderRadius: 16, paddingVertical: 16, alignItems: 'center', borderWidth: 1, borderColor: '#FFE5E5' }}
-          onPress={() => supabase.auth.signOut()}
+          onPress={() => supabase.auth.signOut({ scope: 'local' })}
         >
           <Text style={{ color: '#D94F6B', fontWeight: '600', fontSize: 15 }}>Sign out</Text>
         </TouchableOpacity>
