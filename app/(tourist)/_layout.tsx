@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TouristLayout() {
   return (
@@ -12,7 +12,7 @@ export default function TouristLayout() {
           borderTopColor: '#E5E5EA',
           borderTopWidth: 1,
           height: 82,
-          paddingBottom: 20,
+          paddingBottom: 22,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
@@ -27,14 +27,18 @@ export default function TouristLayout() {
         name="index"
         options={{
           title: 'Explore',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 22 }}>🗺️</Text>,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="compass-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 22 }}>👤</Text>,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-circle-outline" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen name="guide/[id]" options={{ href: null }} />

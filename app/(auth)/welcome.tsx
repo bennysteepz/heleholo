@@ -1,108 +1,115 @@
-import { View, Text, TouchableOpacity, ScrollView, ImageBackground } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
 const TRUST_SIGNALS = [
-  { icon: '✓', label: 'Verified local guides' },
-  { icon: '✓', label: 'Private experiences' },
-  { icon: '✓', label: 'No tour buses' },
+  { icon: 'shield-checkmark-outline' as const, label: 'Verified locals' },
+  { icon: 'lock-closed-outline' as const,      label: 'Private experiences' },
+  { icon: 'ban-outline' as const,              label: 'No tour buses' },
 ];
 
-const EXPERIENCES = [
-  '🍤  Best local food',
-  '🌅  Sunrise adventures',
-  '🏄  Surf culture',
-  '🚗  Scenic island drives',
-  '☕  Hidden cafés',
-  '🌺  First day on Oahu',
+const CATEGORIES = [
+  { icon: 'restaurant-outline' as const,  label: 'Best local food' },
+  { icon: 'sunny-outline' as const,       label: 'Sunrise adventures' },
+  { icon: 'water-outline' as const,       label: 'Surf culture' },
+  { icon: 'car-outline' as const,         label: 'Scenic island drives' },
+  { icon: 'cafe-outline' as const,        label: 'Hidden cafés' },
+  { icon: 'flower-outline' as const,      label: 'First day on Oahu' },
 ];
 
 export default function WelcomeScreen() {
   const router = useRouter();
 
   return (
-    <ScrollView className="flex-1 bg-sand" bounces={false} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: '#F8F4EC' }}
+      bounces={false}
+      showsVerticalScrollIndicator={false}
+    >
       {/* Hero */}
-      <View className="h-96 bg-ocean-dark items-center justify-end pb-10 px-6">
-        <View
-          style={{
-            position: 'absolute',
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: '#1A6FA0',
-            opacity: 0.95,
-          }}
-        />
-        {/* Decorative circles — placeholders for real photography */}
-        <View
-          style={{
-            position: 'absolute',
-            top: -60, right: -60,
-            width: 260, height: 260,
-            borderRadius: 130,
-            backgroundColor: '#2288C9',
-            opacity: 0.25,
-          }}
-        />
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 40, left: -40,
-            width: 180, height: 180,
-            borderRadius: 90,
-            backgroundColor: '#F5A623',
-            opacity: 0.12,
-          }}
-        />
+      <View
+        style={{
+          backgroundColor: '#1A6FA0',
+          paddingTop: 72,
+          paddingBottom: 48,
+          paddingHorizontal: 24,
+          alignItems: 'center',
+        }}
+      >
+        {/* Decorative blobs */}
+        <View style={{ position: 'absolute', top: -50, right: -50, width: 240, height: 240, borderRadius: 120, backgroundColor: '#2288C9', opacity: 0.2 }} />
+        <View style={{ position: 'absolute', bottom: 20, left: -30, width: 160, height: 160, borderRadius: 80, backgroundColor: '#F5A623', opacity: 0.1 }} />
 
-        <Text style={{ fontSize: 15, color: '#93C5FD', letterSpacing: 2, fontWeight: '600', marginBottom: 12 }}>
+        <Text style={{ fontSize: 12, color: '#93C5FD', letterSpacing: 3, fontWeight: '700', marginBottom: 20 }}>
           HELEHOLO
         </Text>
-        <Text style={{ fontSize: 34, fontWeight: '800', color: '#FFFFFF', textAlign: 'center', lineHeight: 42, marginBottom: 12 }}>
+        <Text style={{ fontSize: 36, fontWeight: '800', color: '#FFFFFF', textAlign: 'center', lineHeight: 44, marginBottom: 14 }}>
           Explore Oahu{'\n'}with a local.
         </Text>
-        <Text style={{ fontSize: 16, color: '#BFDBFE', textAlign: 'center', lineHeight: 24 }}>
-          Spend the day with someone{'\n'}who actually lives here.
+        <Text style={{ fontSize: 17, color: '#BFDBFE', textAlign: 'center', lineHeight: 26, maxWidth: 280 }}>
+          Spend the day with someone who actually lives here. No scripts. No buses.
         </Text>
       </View>
 
-      {/* Trust signals */}
-      <View className="flex-row justify-around px-6 py-5 bg-white border-b border-gray-line">
-        {TRUST_SIGNALS.map((t) => (
-          <View key={t.label} className="items-center flex-1">
-            <Text style={{ fontSize: 13, color: '#34C759', fontWeight: '700' }}>
-              {t.icon}  {t.label}
-            </Text>
+      {/* Trust row */}
+      <View
+        style={{
+          backgroundColor: '#FFFFFF',
+          flexDirection: 'row',
+          paddingVertical: 18,
+          paddingHorizontal: 12,
+          borderBottomWidth: 1,
+          borderColor: '#E5E5EA',
+        }}
+      >
+        {TRUST_SIGNALS.map((t, i) => (
+          <View key={t.label} style={{ flex: 1, alignItems: 'center', borderRightWidth: i < 2 ? 1 : 0, borderColor: '#E5E5EA' }}>
+            <Ionicons name={t.icon} size={18} color="#34C759" style={{ marginBottom: 4 }} />
+            <Text style={{ fontSize: 11, color: '#34C759', fontWeight: '700', textAlign: 'center' }}>{t.label}</Text>
           </View>
         ))}
       </View>
 
+      {/* What sets us apart */}
+      <View style={{ backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingTop: 22, paddingBottom: 20, marginTop: 8 }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: '#8E8E93', letterSpacing: 1, marginBottom: 6 }}>
+          WHY HELEHOLO?
+        </Text>
+        <Text style={{ fontSize: 15, color: '#8E8E93', lineHeight: 22 }}>
+          Viator gives you a bus. Airbnb gives you a stranger's house. Heleholo gives you a local friend behind the wheel — someone who knows the shrimp truck that doesn't have a sign, the beach locals actually go to, and the stories that don't make the brochure.
+        </Text>
+      </View>
+
       {/* Experience categories */}
-      <View className="px-6 pt-6 pb-2">
-        <Text style={{ fontSize: 13, color: '#8E8E93', fontWeight: '600', letterSpacing: 1, marginBottom: 14 }}>
+      <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8, marginTop: 8 }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: '#8E8E93', letterSpacing: 1, marginBottom: 14 }}>
           WHAT DO YOU WANT TO DO?
         </Text>
-        <View className="flex-row flex-wrap gap-2">
-          {EXPERIENCES.map((e) => (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          {CATEGORIES.map((c) => (
             <View
-              key={e}
+              key={c.label}
               style={{
+                flexDirection: 'row',
+                alignItems: 'center',
                 backgroundColor: '#FFFFFF',
                 borderRadius: 20,
                 paddingHorizontal: 14,
-                paddingVertical: 8,
+                paddingVertical: 9,
                 borderWidth: 1,
                 borderColor: '#E5E5EA',
-                marginBottom: 8,
+                marginBottom: 0,
               }}
             >
-              <Text style={{ fontSize: 13, color: '#1C1C1E', fontWeight: '500' }}>{e}</Text>
+              <Ionicons name={c.icon} size={14} color="#2288C9" style={{ marginRight: 6 }} />
+              <Text style={{ fontSize: 13, color: '#1C1C1E', fontWeight: '500' }}>{c.label}</Text>
             </View>
           ))}
         </View>
       </View>
 
       {/* CTAs */}
-      <View className="px-6 pt-4 pb-12">
+      <View style={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 52 }}>
         <TouchableOpacity
           style={{
             backgroundColor: '#2288C9',
@@ -111,9 +118,9 @@ export default function WelcomeScreen() {
             alignItems: 'center',
             marginBottom: 12,
             shadowColor: '#2288C9',
-            shadowOffset: { width: 0, height: 4 },
+            shadowOffset: { width: 0, height: 6 },
             shadowOpacity: 0.3,
-            shadowRadius: 8,
+            shadowRadius: 10,
           }}
           onPress={() => router.push('/(auth)/sign-up?role=tourist')}
         >
@@ -126,7 +133,7 @@ export default function WelcomeScreen() {
             borderRadius: 16,
             paddingVertical: 18,
             alignItems: 'center',
-            marginBottom: 20,
+            marginBottom: 24,
             borderWidth: 1.5,
             borderColor: '#2288C9',
           }}
@@ -135,7 +142,7 @@ export default function WelcomeScreen() {
           <Text style={{ color: '#2288C9', fontWeight: '700', fontSize: 17 }}>Become a guide</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="items-center" onPress={() => router.push('/(auth)/sign-in')}>
+        <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => router.push('/(auth)/sign-in')}>
           <Text style={{ color: '#8E8E93', fontSize: 14 }}>Already have an account? Sign in</Text>
         </TouchableOpacity>
       </View>
