@@ -79,7 +79,24 @@ CREATE TABLE IF NOT EXISTS public.reviews (
 
 
 -- ────────────────────────────────────────────────────────────
--- 2. GUIDE PROFILES  (ids: guide_01 … guide_10)
+-- 2. ROW LEVEL SECURITY — allow public reads
+-- ────────────────────────────────────────────────────────────
+
+ALTER TABLE public.profiles       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.adventures     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.adventure_legs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews        ENABLE ROW LEVEL SECURITY;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='profiles'       AND policyname='public read profiles')       THEN CREATE POLICY "public read profiles"       ON public.profiles       FOR SELECT USING (true); END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='adventures'     AND policyname='public read adventures')     THEN CREATE POLICY "public read adventures"     ON public.adventures     FOR SELECT USING (true); END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='adventure_legs' AND policyname='public read adventure_legs') THEN CREATE POLICY "public read adventure_legs" ON public.adventure_legs FOR SELECT USING (true); END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='reviews'        AND policyname='public read reviews')        THEN CREATE POLICY "public read reviews"        ON public.reviews        FOR SELECT USING (true); END IF;
+END $$;
+
+
+-- ────────────────────────────────────────────────────────────
+-- 3. GUIDE PROFILES  (ids: guide_01 … guide_10)
 -- ────────────────────────────────────────────────────────────
 
 INSERT INTO public.profiles (id, full_name, role, bio, avatar_url, languages, rating, review_count,

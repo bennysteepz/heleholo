@@ -45,6 +45,7 @@ export default function BrowseScreen() {
   const fetchAdventures = useCallback(async () => {
     setLoading(true);
     setError(null);
+    console.log('[BrowseScreen] fetching adventures, category:', activeCategory);
     try {
       let query = supabase
         .from('adventures')
@@ -60,10 +61,13 @@ export default function BrowseScreen() {
       }
 
       const { data, error: err } = await query;
+      console.log('[BrowseScreen] result:', { count: data?.length, error: err?.message });
       if (err) throw err;
       setAdventures((data as Adventure[]) ?? []);
     } catch (e: any) {
-      setError('Could not load adventures. Check your connection and try again.');
+      const msg = e?.message ?? String(e);
+      console.error('[BrowseScreen] fetch error:', msg);
+      setError(msg);
     } finally {
       setLoading(false);
     }
