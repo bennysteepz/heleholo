@@ -1,0 +1,21 @@
+---
+description: Git and GitHub actions must never be run automatically — always hand off to the user
+alwaysApply: true
+---
+
+# Git / GitHub Workflow
+
+Never run `git commit`, `git push`, `gh repo create`, or any other git/GitHub command automatically.
+
+When a commit or GitHub action is needed, stop and give the user:
+1. A one-line copy-pasteable terminal command (or the exact sequence of commands needed)
+2. A brief plain-English note on what it does
+
+## Example format
+
+> In your terminal, from `/Users/benjaminsteeper/Desktop/OTHER_PROJECTS/heleholo/github`:
+> ```
+> git add . && git commit -m "add cancellation policy to PLAN.md"
+> ```
+
+Always specify the directory to run the command from when it matters. Always wait for the user to confirm they've run it before proceeding.
