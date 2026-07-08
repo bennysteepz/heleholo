@@ -87,6 +87,11 @@ ALTER TABLE public.adventures     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.adventure_legs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews        ENABLE ROW LEVEL SECURITY;
 
+GRANT SELECT ON public.profiles       TO anon, authenticated;
+GRANT SELECT ON public.adventures     TO anon, authenticated;
+GRANT SELECT ON public.adventure_legs TO anon, authenticated;
+GRANT SELECT ON public.reviews        TO anon, authenticated;
+
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='profiles'       AND policyname='public read profiles')       THEN CREATE POLICY "public read profiles"       ON public.profiles       FOR SELECT USING (true); END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='adventures'     AND policyname='public read adventures')     THEN CREATE POLICY "public read adventures"     ON public.adventures     FOR SELECT USING (true); END IF;

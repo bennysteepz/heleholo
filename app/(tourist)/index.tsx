@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../store/authStore';
 import { supabase } from '../../lib/supabase';
@@ -34,6 +35,7 @@ const CATEGORY_DB_MAP: Record<string, string[]> = {
 };
 
 export default function BrowseScreen() {
+  const router = useRouter();
   const { session } = useAuthStore();
   const firstName = session?.user.user_metadata?.full_name?.split(' ')[0] ?? 'there';
 
@@ -168,7 +170,11 @@ export default function BrowseScreen() {
           />
         ) : (
           adventures.map((adv) => (
-            <AdventureCard key={adv.id} adventure={adv} />
+            <AdventureCard
+              key={adv.id}
+              adventure={adv}
+              onPress={() => router.push(`/(tourist)/guide/${adv.id}`)}
+            />
           ))
         )}
       </View>
