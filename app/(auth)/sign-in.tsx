@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 
@@ -17,43 +17,87 @@ export default function SignInScreen() {
     if (error) Alert.alert('Sign in failed', error.message);
   }
 
+  const inputStyle = {
+    borderWidth: 1.5,
+    borderColor: '#E5E5EA',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#1C1C1E',
+    backgroundColor: '#FFFFFF',
+    marginBottom: 14,
+  };
+
+  const labelStyle = {
+    fontSize: 13,
+    fontWeight: '600' as const,
+    color: '#8E8E93',
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  };
+
   return (
-    <View className="flex-1 bg-white px-6 pt-16">
-      <Text className="text-2xl font-bold text-gray-900 mb-1">Welcome back</Text>
-      <Text className="text-gray-500 mb-8">Sign in to continue.</Text>
-
-      <Text className="text-sm font-medium text-gray-700 mb-1">Email</Text>
-      <TextInput
-        className="border border-gray-200 rounded-xl px-4 py-3 mb-4 text-gray-900"
-        placeholder="you@example.com"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <Text className="text-sm font-medium text-gray-700 mb-1">Password</Text>
-      <TextInput
-        className="border border-gray-200 rounded-xl px-4 py-3 mb-8 text-gray-900"
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <TouchableOpacity
-        className={`rounded-2xl py-4 items-center mb-4 ${loading ? 'bg-primary-300' : 'bg-primary-500'}`}
-        onPress={handleSignIn}
-        disabled={loading}
-      >
-        <Text className="text-white font-semibold text-base">
-          {loading ? 'Signing in...' : 'Sign in'}
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: '#F8F4EC' }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 48 }}>
+        <Text style={{ fontSize: 13, color: '#2288C9', fontWeight: '700', letterSpacing: 2, marginBottom: 12 }}>
+          HELEHOLO
         </Text>
-      </TouchableOpacity>
+        <Text style={{ fontSize: 30, fontWeight: '800', color: '#1C1C1E', marginBottom: 6 }}>
+          Welcome back
+        </Text>
+        <Text style={{ fontSize: 16, color: '#8E8E93', marginBottom: 32 }}>
+          Sign in to continue.
+        </Text>
 
-      <TouchableOpacity onPress={() => router.back()} className="items-center">
-        <Text className="text-gray-400 text-sm">Don't have an account? Sign up</Text>
-      </TouchableOpacity>
-    </View>
+        <Text style={labelStyle}>EMAIL</Text>
+        <TextInput
+          style={inputStyle}
+          placeholder="you@example.com"
+          placeholderTextColor="#C7C7CC"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+
+        <Text style={labelStyle}>PASSWORD</Text>
+        <TextInput
+          style={{ ...inputStyle, marginBottom: 28 }}
+          placeholder="Password"
+          placeholderTextColor="#C7C7CC"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+
+        <TouchableOpacity
+          style={{
+            backgroundColor: loading ? '#BFDBFE' : '#2288C9',
+            borderRadius: 16,
+            paddingVertical: 18,
+            alignItems: 'center',
+            marginBottom: 14,
+            shadowColor: '#2288C9',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+          }}
+          onPress={handleSignIn}
+          disabled={loading}
+        >
+          <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 17 }}>
+            {loading ? 'Signing in…' : 'Sign in'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => router.back()}>
+          <Text style={{ color: '#8E8E93', fontSize: 14 }}>Don't have an account? Sign up</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }

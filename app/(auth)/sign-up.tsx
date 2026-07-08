@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 
@@ -23,68 +23,105 @@ export default function SignUpScreen() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { full_name: fullName, role: role ?? 'tourist' },
-      },
+      options: { data: { full_name: fullName, role: role ?? 'tourist' } },
     });
     setLoading(false);
-    if (error) {
-      Alert.alert('Sign up failed', error.message);
-    }
+    if (error) Alert.alert('Sign up failed', error.message);
   }
 
+  const inputStyle = {
+    borderWidth: 1.5,
+    borderColor: '#E5E5EA',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#1C1C1E',
+    backgroundColor: '#FFFFFF',
+    marginBottom: 14,
+  };
+
+  const labelStyle = {
+    fontSize: 13,
+    fontWeight: '600' as const,
+    color: '#8E8E93',
+    letterSpacing: 0.5,
+    marginBottom: 6,
+  };
+
   return (
-    <ScrollView className="flex-1 bg-white" contentContainerClassName="px-6 pt-16 pb-12">
-      <Text className="text-2xl font-bold text-gray-900 mb-1">
-        {isGuide ? 'Become a guide' : 'Create your account'}
-      </Text>
-      <Text className="text-gray-500 mb-8">
-        {isGuide
-          ? 'Share your Oahu with the world.'
-          : 'Find your perfect local experience.'}
-      </Text>
-
-      <Text className="text-sm font-medium text-gray-700 mb-1">Full name</Text>
-      <TextInput
-        className="border border-gray-200 rounded-xl px-4 py-3 mb-4 text-gray-900"
-        placeholder="Your name"
-        value={fullName}
-        onChangeText={setFullName}
-        autoCapitalize="words"
-      />
-
-      <Text className="text-sm font-medium text-gray-700 mb-1">Email</Text>
-      <TextInput
-        className="border border-gray-200 rounded-xl px-4 py-3 mb-4 text-gray-900"
-        placeholder="you@example.com"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-
-      <Text className="text-sm font-medium text-gray-700 mb-1">Password</Text>
-      <TextInput
-        className="border border-gray-200 rounded-xl px-4 py-3 mb-8 text-gray-900"
-        placeholder="Min 8 characters"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <TouchableOpacity
-        className={`rounded-2xl py-4 items-center mb-4 ${loading ? 'bg-primary-300' : 'bg-primary-500'}`}
-        onPress={handleSignUp}
-        disabled={loading}
-      >
-        <Text className="text-white font-semibold text-base">
-          {loading ? 'Creating account...' : 'Create account'}
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: '#F8F4EC' }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingTop: 56, paddingBottom: 48 }}>
+        <Text style={{ fontSize: 13, color: '#2288C9', fontWeight: '700', letterSpacing: 2, marginBottom: 12 }}>
+          {isGuide ? 'BECOME A GUIDE' : 'CREATE ACCOUNT'}
         </Text>
-      </TouchableOpacity>
+        <Text style={{ fontSize: 30, fontWeight: '800', color: '#1C1C1E', marginBottom: 6 }}>
+          {isGuide ? 'Share your Oahu.' : 'Find a local experience.'}
+        </Text>
+        <Text style={{ fontSize: 16, color: '#8E8E93', marginBottom: 32, lineHeight: 22 }}>
+          {isGuide
+            ? 'Join our community of local guides and earn by showing visitors the real Oahu.'
+            : 'Connect with local guides and experience the island like you actually live there.'}
+        </Text>
 
-      <TouchableOpacity onPress={() => router.push('/(auth)/sign-in')} className="items-center">
-        <Text className="text-gray-400 text-sm">Already have an account? Sign in</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <Text style={labelStyle}>FULL NAME</Text>
+        <TextInput
+          style={inputStyle}
+          placeholder="Your name"
+          placeholderTextColor="#C7C7CC"
+          value={fullName}
+          onChangeText={setFullName}
+          autoCapitalize="words"
+        />
+
+        <Text style={labelStyle}>EMAIL</Text>
+        <TextInput
+          style={inputStyle}
+          placeholder="you@example.com"
+          placeholderTextColor="#C7C7CC"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+
+        <Text style={labelStyle}>PASSWORD</Text>
+        <TextInput
+          style={{ ...inputStyle, marginBottom: 28 }}
+          placeholder="Min 8 characters"
+          placeholderTextColor="#C7C7CC"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+
+        <TouchableOpacity
+          style={{
+            backgroundColor: loading ? '#BFDBFE' : '#2288C9',
+            borderRadius: 16,
+            paddingVertical: 18,
+            alignItems: 'center',
+            marginBottom: 14,
+            shadowColor: '#2288C9',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+          }}
+          onPress={handleSignUp}
+          disabled={loading}
+        >
+          <Text style={{ color: '#FFFFFF', fontWeight: '700', fontSize: 17 }}>
+            {loading ? 'Creating account…' : isGuide ? 'Apply to be a guide' : 'Create account'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => router.push('/(auth)/sign-in')}>
+          <Text style={{ color: '#8E8E93', fontSize: 14 }}>Already have an account? Sign in</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
